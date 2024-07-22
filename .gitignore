@@ -30,3 +30,20 @@
 *.exe
 *.out
 *.app
+
+#Added by me
+
+# VS Code #
+.vscode/
+
+# Visual Studio #
+*.vs/
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+*.sdf
+*.opensdf
+*Debug/
+*Release/
+*x64/
+*x86/
