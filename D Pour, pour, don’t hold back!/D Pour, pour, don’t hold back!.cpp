@@ -49,7 +49,7 @@ public:
             totalDurationEndsBefore[idxSet.first] = sum;
         }
     }
-    
+
     long long totalCostStartsWithin(int start, int end) const {
         long long startSum, endSum;
         auto itr = totalCostStartsBefore.lower_bound(start);

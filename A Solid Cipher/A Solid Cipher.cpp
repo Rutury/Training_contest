@@ -1,70 +1,103 @@
-﻿#include <iostream>
-#include <set>
-#include <string>
-#include <sstream>
-#include <iomanip>
+﻿#include<iostream>
+#include<string>
+#include<vector>
+#include<set>
 
 using namespace std;
 
-class Candidate
-{
-public:
-    static const int words_in_name = 3;
-    static const int numbers_in_day = 3;
-    string name[words_in_name];
-    int day[numbers_in_day];
+class TPerson {
+private:
+    string name[3];
+    int birthDate[3];
 
-    Candidate(const string& data_in_csv) {
-        istringstream data_stream(data_in_csv);
-        string cur_word;
-        for (int i = 0; getline(data_stream, cur_word, ',') && i < words_in_name + numbers_in_day; i++) {
-            if (i < words_in_name) {
-                name[i] = cur_word;
-            }
-            else {
-                day[i - words_in_name] = stoi(cur_word);
+    int countSymbolsInName() {
+        set<char> symbols;
+        for (string& namePart : name) {
+            for (char symbol : namePart) {
+                symbols.insert(symbol);
             }
         }
+        return symbols.size();
     }
 
-    int count_uniq_words() {
-        set<char> letters;
-        for (string& word : name) {
-            for (char letter : word) {
-                letters.insert(letter);
-            }
-        }
-        return letters.size();
-    }
-
-    int sum_digits_in_d_m() {
+    int sumDigitsInBirthDate() {
         int sum = 0;
         for (int i = 0; i < 2; i++) {
-            for (int x = day[i]; x > 0; x /= 10) {
-                sum += x % 10;
+            int birthDatePart = birthDate[i];
+            while (birthDatePart > 0) {
+                sum += birthDatePart % 10;
+                birthDatePart /= 10;
             }
         }
         return sum;
     }
 
-    int get_cipher() {
-        int cipher = 0;
-        cipher += count_uniq_words();
-        cipher += 64 * sum_digits_in_d_m();
-        cipher += 256 * (toupper(name[0][0]) - 'A' + 1);
-        return cipher % (16 * 16 * 16); 
+    static int readFromToComma(const string& fromStr, int i, string& toStr) {
+        toStr = "";
+        while (fromStr[i] && fromStr[i] != ',') {
+            toStr += fromStr[i];
+            i++;
+        }
+        return i + 1;
+    }
+
+    static int readIntFromToComma(const string& fromStr, int i, int& toInt) {
+        string str;
+        i = readFromToComma(fromStr, i, str);
+        toInt = stoi(str);
+        return i;
+    }
+
+    static string toHex(int x) {
+        string ans;
+        int d = 16 * 16;
+        while (d > 0) {
+            if (x / d < 10) {
+                ans += '0' + x / d;
+            }
+            else {
+                ans += 'A' + x / d - 10;
+            }
+            x %= d;
+            d /= 16;
+        }
+        return ans;
+    }
+
+public:
+    TPerson(const string& csv) {
+        int i = 0;
+        for (string& namePart : name) {
+            i = readFromToComma(csv, i, namePart);
+        }
+        for (int& birthDatePart : birthDate) {
+            i = readIntFromToComma(csv, i, birthDatePart);
+        }
+    }
+
+    string GetCipher() {
+        int fullCipher = countSymbolsInName() + 64 * sumDigitsInBirthDate() + 256 * (toupper(name[0][0]) - 'A' + 1);
+        return toHex(fullCipher % 4096); // 16^3 = 4096
     }
 };
 
-int main() {
+int main()
+{
     int N;
-    string input;
     cin >> N;
-    for (int i = 0; i < N; i++) {
-        cin >> input;
-        Candidate candidate(input);
-        int n_digits = 3;
-        cout << hex << setw(n_digits) << setfill('0') << uppercase << candidate.get_cipher() << ' ';
+    while (N > 0) {
+        string inputCSV;
+        cin >> inputCSV;
+        TPerson Person(inputCSV);
+        cout << Person.GetCipher();
+
+        N--;
+        if (N > 0) {
+            cout << " ";
+        }
+        else {
+            cout << endl;
+        }
     }
     return 0;
 }

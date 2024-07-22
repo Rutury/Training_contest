@@ -61,7 +61,7 @@ public:
 
     void swapL(TNode* u) {
         if (u == NULL || u->isRoot()) return;
-        TNode* p = u->parent, *ul = u->lchild, *pp = p->parent;
+        TNode* p = u->parent, * ul = u->lchild, * pp = p->parent;
         if (p->isRoot()) root = u;
         else if (p->isLeft()) pp->lchild = u;
         else if (p->isRight()) pp->rchild = u;
